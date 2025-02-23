@@ -5,10 +5,7 @@
   "repository": "farzinkakh/farahub",
   "license": "MIT",
   "author": "farzinkakh <https://github.com/farzinkakh>",
-  "files": [
-    "foundation",
-    "facades"
-  ],
+  "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon app/main.js --ignore apps/*/storage/* --ignore apps/*/ssl/* --ignore apps/*/public/*",
     "prod": "cross-env NODE_ENV=production pm2 start app/main.js --name farahub -i max --watch --ignore-watch='node_modules'",
