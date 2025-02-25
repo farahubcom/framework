@@ -1,3 +1,4 @@
+const Auth = require('./Auth');
 const Crypt = require('./Crypt');
 const Doc = require('./Doc');
 const Event = require('./Event');
@@ -11,8 +12,10 @@ const Resource = require('./Resource');
 const Str = require('./Str');
 const Validator = require('./Validator');
 const View = require('./View');
+const Workspace = require('./Workspace');
 
 module.exports = {
+    Auth,
     Crypt,
     Doc,
     Event,
@@ -26,4 +29,5 @@ module.exports = {
     Str,
     Validator,
     View,
+    Workspace,
 }

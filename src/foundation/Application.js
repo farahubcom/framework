@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const express = require("express");
 const cors = require('cors');
 const http = require('http');
-const https = require('https');
 const { Server: IOServer } = require("socket.io");
 const subdomain = require('express-subdomain');
 const path = require('path');
@@ -16,7 +15,7 @@ const camelCase = require("lodash/camelCase");
 const fs = require("fs");
 const vhost = require('vhost');
 const { default: asyncMiddleware } = require("middleware-async");
-const WorkspaceFacade = require('../modules/core/facades/Workspace');
+const WorkspaceFacade = require('../facades/Workspace');
 const { Agenda } = require('@hokify/agenda');
 const { I18n } = require('i18n');
 const cookieParser = require('cookie-parser');
@@ -307,15 +306,15 @@ class Application extends EventEmitter {
 
                          await self.registerWorkspaceJobs(workspace);
 
-                         if(workspace.hostname) {
+                         if (workspace.hostname) {
 
                               // const config = require(self.getAppsPath(workspace.identifier, 'farahub.config.js'));
-     
+
                               // workspace.getApi = (path) => `${self.dev ? 'http' : 'https'}://api.${workspace.identifier}.${self.hostname}${path}`;
                               // if (workspace.hostname) {
                               //      workspace.getApi = (path) => `${self.dev ? 'http' : 'https'}://api.${workspace.hostname}${path}`;
                               // }
-     
+
                               // if (config.type == "next") {
                               //      // register next app
                               //      const dir = self.getAppsPath(workspace.identifier);
@@ -325,9 +324,9 @@ class Application extends EventEmitter {
                               //           await workspace._next.prepare();
                               //      }
                               // }
-     
+
                               const app = self.createExpressApp({ hostname: workspace.hostname });
-     
+
                               // config workspace locale
                               const localesPath = self.getAppsPath(workspace.identifier, 'locales');
                               if (fs.existsSync(localesPath)) {
@@ -341,16 +340,16 @@ class Application extends EventEmitter {
                                    });
                                    app.use(i18n.init);
                               }
-     
+
                               app.use(expressLayouts);
                               app.set('layout', false);
                               // app.set("layout extractScripts", true);
                               app.set('view engine', 'ejs');
-     
+
                               app.use(cookieParser());
-     
+
                               app.use(referrerPolicy({ policy: 'no-referrer-when-downgrade' }));
-     
+
                               // config session
                               var sessionConfig = {
                                    name: 'farahub',
@@ -363,27 +362,27 @@ class Application extends EventEmitter {
                                         domain: workspace.hostname
                                    }
                               }
-     
+
                               if (!this.dev) {
                                    app.set('trust proxy', 1)
                                    sessionConfig.cookie.secure = true
                               }
-     
+
                               app.use(session(sessionConfig));
                               app.use(flash());
-     
+
                               app.use(passport.authenticate('session'));
-     
+
                               // config static
                               app.use(express.static(self.getAppsPath(workspace.identifier, 'public')));
-     
+
                               // config api routes
                               // app.use(subdomain(`api.${workspace.identifier}`, routers['api']));
-     
+
                               // if (workspace.hostname) {
-                                   app.use(subdomain('api', routers['api']));
+                              app.use(subdomain('api', routers['api']));
                               // }
-     
+
                               // config hub routes
                               // function overrideRenderAndLayout(appRootPath) {
                               //      return function (req, res, next) {
@@ -400,7 +399,7 @@ class Application extends EventEmitter {
                               //           next();
                               //      }
                               // }
-     
+
                               // app.use(subdomain(`my.${workspace.identifier}`, express.Router()
                               //      .use(asyncMiddleware(WorkspaceFacade.resolveFromModel(workspace, self)))
                               //      .use(express.static(self.getAppsPath('hub', 'public')))
@@ -410,19 +409,19 @@ class Application extends EventEmitter {
                               //           return require(hubPath)(req, res);
                               //      })
                               // ));
-     
+
                               // if (workspace.hostname) {
-                                   app.use(subdomain('my', express.Router()
-                                        .use(asyncMiddleware(WorkspaceFacade.resolveFromModel(workspace, self)))
-                                        .use(express.static(self.getAppsPath('hub', 'public')))
-                                        .use(View.setRenderBasePath(self.getAppsPath('hub', 'views')))
-                                        .use('*', function (req, res) {
-                                             const hubPath = self.getAppsPath('hub', 'controllers', 'index.js');
-                                             return require(hubPath)(req, res);
-                                        })
-                                   ));
+                              app.use(subdomain('my', express.Router()
+                                   .use(asyncMiddleware(WorkspaceFacade.resolveFromModel(workspace, self)))
+                                   .use(express.static(self.getAppsPath('hub', 'public')))
+                                   .use(View.setRenderBasePath(self.getAppsPath('hub', 'views')))
+                                   .use('*', function (req, res) {
+                                        const hubPath = self.getAppsPath('hub', 'controllers', 'index.js');
+                                        return require(hubPath)(req, res);
+                                   })
+                              ));
                               // }
-     
+
                               // register app base web routes
                               const routerPath = self.getAppsPath(workspace.identifier, 'router.js');
                               if (fs.existsSync(routerPath)) {
@@ -433,7 +432,7 @@ class Application extends EventEmitter {
                                    ])
                               }
 
-                             // config base @ routing for domains
+                              // config base @ routing for domains
                               if (workspace.hostname === self.hostname) {
                                    // register web router one time for all workspaces and one time for farahub.com
                                    // farahub.com must be after that not overwrite /@{ws} routes
@@ -448,8 +447,8 @@ class Application extends EventEmitter {
                                              }
                                         )
                                    })
-                              } 
-     
+                              }
+
                               // register modules base web routes
                               Object.keys(routers).filter(r => r !== 'api').forEach(
                                    key => {
@@ -461,20 +460,20 @@ class Application extends EventEmitter {
                                              ]);
                                    }
                               )
-                              
-     
+
+
                               // self.server.use(vhost(`${workspace.identifier}.${self.hostname}`, app));
                               // self.server.use(vhost(`www.${workspace.identifier}.${self.hostname}`, app));
                               // self.server.use(vhost(`my.${workspace.identifier}.${self.hostname}`, app));
                               // self.server.use(vhost(`api.${workspace.identifier}.${self.hostname}`, app));
-     
+
                               // register seperate host
                               // if (workspace.hostname) {
-     
-                                   self.server.use(vhost(workspace.hostname, app));
-                                   self.server.use(vhost(`www.${workspace.hostname}`, app));
-                                   self.server.use(vhost(`my.${workspace.hostname}`, app));
-                                   self.server.use(vhost(`api.${workspace.hostname}`, app));
+
+                              self.server.use(vhost(workspace.hostname, app));
+                              self.server.use(vhost(`www.${workspace.hostname}`, app));
+                              self.server.use(vhost(`my.${workspace.hostname}`, app));
+                              self.server.use(vhost(`api.${workspace.hostname}`, app));
                               // }
                          }
                     }
@@ -493,61 +492,6 @@ class Application extends EventEmitter {
           server.listen(
                process.env.PORT_HTTP,
                () => console.log('Farahub is running on port '.concat(process.env.PORT_HTTP))
-          );
-
-          return server;
-     }
-
-     /**
-      * Resolve SSL object from path
-      * 
-      * @params path
-      * 
-      * @returns {object} ssl object
-      */
-     resolveSsl(...paths) {
-          return {
-               key: fs.readFileSync(
-                    path.join(...paths, './private.key'),
-                    'utf8'
-               ),
-               cert: fs.readFileSync(
-                    path.join(...paths, './certificate.crt'),
-                    'utf8'
-               ),
-               ca: fs.readFileSync(
-                    path.join(...paths, './ca_bundle.crt'),
-                    'utf8'
-               )
-          }
-     }
-
-     /**
-      * Create https server
-      * 
-      * @return requestListener
-      */
-     async createHttpsServer(requestListener) {
-
-          const server = https.createServer(this.resolveSsl(this.getSslPath(this.hostname)), requestListener);
-          server.addContext(`api.${this.hostname}`, this.resolveSsl(this.getSslPath(this.hostname, 'api')));
-          server.addContext(`my.${this.hostname}`, this.resolveSsl(this.getSslPath(this.hostname, 'hub')));
-
-          // const workspaces = await this.connection.model('Workspace').find({ hostname: { $ne: null } });
-
-          // await Promise.all(
-          //      workspaces.map(
-          //           workspace => {
-          //                server.addContext(workspace.hostname, this.resolveSsl(this.getSslPath(workspace.hostname)));
-          //                server.addContext(`api.${workspace.hostname}`, this.resolveSsl(this.getSslPath(workspace.hostname, 'api')));
-          //                server.addContext(`my.${workspace.hostname}`, this.resolveSsl(this.getSslPath(workspace.hostname, 'hub')));
-          //           }
-          //      )
-          // )
-
-          server.listen(
-               process.env.PORT_HTTPS,
-               () => console.log('Farahub is running on port '.concat(process.env.PORT_HTTPS))
           );
 
           return server;
@@ -633,34 +577,13 @@ class Application extends EventEmitter {
      * @return void
      */
      registerServer() {
+          this.server = this.createExpressApp({ hostname: "localhost" });
 
-          // create http, https & socketio servers
-          // if (this.dev) {
+          // create http server
+          const httpServer = this.createHttpServer(this.server);
 
-               this.server = this.createExpressApp({ hostname: "localhost" });
-
-               // create http server
-               const httpServer = this.createHttpServer(this.server);
-
-               // create socketIO server
-               this.registerSocketIOServer(httpServer);
-
-          // } else {
-
-          //      this.server = express();
-
-          //      // create https server
-          //      const httpsServer = this.createHttpsServer(this.server);
-
-          //      // redirect from http to https
-          //      this.createHttpServer((req, res) => {
-          //           res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
-          //           res.end();
-          //      });
-
-          //      // create socketIO server
-          //      this.registerSocketIOServer(httpsServer);
-          // }
+          // create socketIO server
+          this.registerSocketIOServer(httpServer);
      }
 
      /**
