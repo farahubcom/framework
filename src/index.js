@@ -1,6 +1,7 @@
-const Application = require('./foundation/Application');
-
+const facades = require('./facades');
+const foundation = require('./foundation');
 
 module.exports = {
-    Application
+    facades,
+    foundation,
 }
