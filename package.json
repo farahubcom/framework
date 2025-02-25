@@ -1,12 +1,14 @@
 {
   "name": "@farahub/framework",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "modular crm framework",
   "repository": "farzinkakh/farahub",
   "license": "MIT",
   "author": "farzinkakh <https://github.com/farzinkakh>",
   "exports": {
+    "./facades": "./src/facades/index.js",
     "./facades/*": "./src/facades/*.js",
+    "./foundation": "./src/foundation/index.js",
     "./foundation/*": "./src/foundation/*.js",
     ".": "./src/index.js"
   },
